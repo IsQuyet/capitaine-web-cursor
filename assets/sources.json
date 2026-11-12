@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/keeferrourke/capitaine-cursors",
+  "commit": "06c88433662a4004cf56a6e471b523a0a8880be0",
+  "license": "LGPL-3.0-or-later",
+  "outputSize": 32,
+  "cursors": {
+    "grab": "openhand",
+    "grabbing": "dnd-move",
+    "zoom-in": "zoom-in",
+    "zoom-out": "zoom-out",
+    "cell": "cell",
+    "vertical-text": "vertical-text",
+    "alias": "alias",
+    "copy": "copy",
+    "col-resize": "col-resize",
+    "row-resize": "row-resize"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "capitaine-web-cursor",
+  "version": "0.1.2",
+  "private": true,
+  "type": "module",
+  "description": "将网页中的十种标准 CSS 特殊指针替换为 Capitaine 素材的 Chrome 扩展",
+  "license": "MIT AND LGPL-3.0-or-later",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build:assets": "node scripts/build-assets.mjs",
+    "build": "node scripts/build.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "check:package": "node scripts/check-package.mjs",
+    "demo": "node scripts/serve-tests.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "setup:browser": "node scripts/browser.mjs install chromium",
+    "test:browser": "node scripts/browser.mjs test",
+    "test": "npm run test:unit && npm run build && npm run check:assets && npm run check:package && npm run test:browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "esbuild": "0.28.2"
+  }
+}

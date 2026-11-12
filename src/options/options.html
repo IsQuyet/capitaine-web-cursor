@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Capitaine · 指针设置</title>
+  <link rel="stylesheet" href="./options.css">
+  <script type="module" src="./options.js"></script>
+</head>
+<body>
+  <main class="options-shell">
+    <header class="page-header">
+      <p class="brand">CAPITAINE</p>
+      <h1>指针设置</h1>
+    </header>
+
+    <form id="settings-form">
+      <fieldset id="settings-fields" disabled aria-labelledby="global-settings-heading">
+        <h2 id="global-settings-heading" class="section-heading">全局设置</h2>
+        <div class="panel">
+          <label class="setting-row" for="enabled">
+            <span class="setting-title">全局启用</span>
+            <input class="switch" id="enabled" type="checkbox" role="switch">
+          </label>
+          <div class="setting-row">
+            <label class="setting-copy" for="theme">
+              <span class="setting-title">显示模式</span>
+              <span class="hint" id="theme-help"></span>
+            </label>
+            <select id="theme" aria-describedby="theme-help">
+              <option value="auto">Auto</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+
+        <details id="site-settings" class="panel exclusions">
+          <summary>网站排除</summary>
+          <p class="hint" id="hosts-help">例如 example.com，子域名单独填写。</p>
+          <textarea id="excluded-hosts" rows="3" placeholder="example.com&#10;mail.example.org" aria-label="排除的主机名，每行一个" spellcheck="false" autocapitalize="none" autocomplete="off" aria-describedby="hosts-help status"></textarea>
+        </details>
+      </fieldset>
+
+      <div class="save-row">
+        <button id="save" type="submit" disabled>保存全局设置</button>
+        <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+    </form>
+    <section id="cursor-editor" class="cursor-editor panel" aria-labelledby="cursor-editor-heading" aria-busy="true" data-preview-background="checker">
+      <header class="editor-heading">
+        <h2 id="cursor-editor-heading">指针资源</h2>
+      </header>
+
+      <fieldset id="cursor-editor-fields" disabled aria-label="指针编辑">
+        <div class="editor-selectors">
+          <div class="editor-field">
+            <label for="cursor-type">Cursor 类型</label>
+            <select id="cursor-type"></select>
+          </div>
+          <div class="editor-field">
+            <label for="cursor-palette">编辑版本</label>
+            <select id="cursor-palette">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="editor-import">
+          <div class="import-row">
+            <button id="cursor-import" class="secondary" type="button">更换图片</button>
+            <p id="cursor-file-help" class="hint">SVG / PNG / CUR · 最大256 KiB</p>
+            <input id="cursor-file" type="file" accept=".svg,.png,.cur,image/svg+xml,image/png,image/x-icon,image/vnd.microsoft.icon" aria-describedby="cursor-file-help" hidden>
+          </div>
+          <dl class="cursor-metadata">
+            <div class="resource-name-row"><dt>资源</dt><dd><span id="cursor-resource-name">—</span> <span id="cursor-resource-kind" class="hint"></span> <span id="cursor-draft-state" class="draft-state" hidden>未应用</span></dd></div>
+            <div><dt>尺寸</dt><dd>原图 <output id="cursor-source-size">—</output> · 显示 <output id="cursor-display-size">—</output></dd></div>
+          </dl>
+          <details class="format-limits">
+            <summary>格式与限制</summary>
+            <ul class="hint">
+              <li>SVG：静态、自包含，显示长边 32 px。</li>
+              <li>PNG：原尺寸不超过 128 × 128 px。</li>
+              <li>CUR：保留原文件，使用不超过 128 × 128 px 的兼容图像。</li>
+              <li>网站 CSP 限制上传图片时，会回退到内置指针。</li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="editor-field preview-background-field">
+          <label for="cursor-preview-background">预览背景</label>
+          <select id="cursor-preview-background">
+            <option value="checker">棋盘</option>
+            <option value="light">浅色</option>
+            <option value="dark">深色</option>
+          </select>
+        </div>
+
+        <div class="editor-workspace">
+          <div class="calibration-column">
+            <h3 id="cursor-calibration-heading">Hotspot（热点）</h3>
+            <button id="cursor-calibrator" class="cursor-calibrator preview-surface" type="button" aria-label="Hotspot 校准画布" aria-describedby="cursor-calibration-help" disabled>
+              <span id="cursor-image-frame" class="cursor-image-frame">
+                <img id="cursor-image" alt="当前指针的放大图片" draggable="false" hidden>
+                <span id="cursor-crosshair" class="cursor-crosshair" aria-hidden="true" hidden></span>
+              </span>
+            </button>
+            <p id="cursor-calibration-help" class="hint">点击或拖动，方向键微调（Shift 加速）。</p>
+          </div>
+
+          <div class="hotspot-column">
+            <h3>源图坐标</h3>
+            <div class="hotspot-inputs">
+              <div class="editor-field">
+                <label for="cursor-hotspot-x">X</label>
+                <input id="cursor-hotspot-x" type="number" min="0" step="any" inputmode="decimal" aria-describedby="cursor-hotspot-bounds">
+              </div>
+              <div class="editor-field">
+                <label for="cursor-hotspot-y">Y</label>
+                <input id="cursor-hotspot-y" type="number" min="0" step="any" inputmode="decimal" aria-describedby="cursor-hotspot-bounds">
+              </div>
+            </div>
+            <p id="cursor-hotspot-bounds" class="hint field-error" role="status" aria-live="polite"></p>
+            <p id="cursor-hotspot-origin" class="hint" hidden></p>
+
+            <h3 class="trial-heading" id="cursor-trial-heading">试用</h3>
+            <div id="cursor-trial" class="cursor-trial preview-surface" tabindex="0" role="group" aria-labelledby="cursor-trial-heading" aria-describedby="cursor-trial-help">
+              <span class="trial-target" aria-hidden="true">+</span>
+              <span id="cursor-trial-marker" class="trial-marker" aria-hidden="true" hidden></span>
+            </div>
+            <p id="cursor-trial-help" class="hint">对准＋点击，红点是实际落点</p>
+            <p id="cursor-trial-result" class="hint" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <label class="cursor-share-row" for="cursor-share-palette">
+          <input id="cursor-share-palette" type="checkbox">
+          <span id="cursor-share-label">本次同时应用到 Dark</span>
+        </label>
+
+        <div class="editor-actions">
+          <button id="cursor-apply" type="button" disabled>应用</button>
+          <button id="cursor-reset" class="secondary" type="button">恢复 Light 默认</button>
+        </div>
+      </fieldset>
+
+      <p id="cursor-external-change" class="editor-external-note" role="status" hidden>当前资源有更新，未应用更改已保留。</p>
+      <div class="editor-status-row">
+        <p id="cursor-editor-status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
+        <button id="cursor-reload" class="secondary" type="button" hidden>重试</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

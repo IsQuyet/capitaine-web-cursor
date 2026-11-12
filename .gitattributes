@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.png binary
+*.zip binary
+# 保留第三方许可原文中的空白，不对它做格式化。
+licenses/*.txt -whitespace

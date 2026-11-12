@@ -1,0 +1,20 @@
+Capitaine Web Cursor — 第三方素材声明
+
+光标图形：Capitaine Cursors
+Copyright (c) 2016 Keefer Rourke <keefer.rourke@gmail.com> and others.
+Capitaine cursors are based on the KDE Breeze icon theme.
+许可证：LGPL-3.0-or-later
+上游：https://github.com/keeferrourke/capitaine-cursors
+版本：06c88433662a4004cf56a6e471b523a0a8880be0
+
+原始 SVG 与 .spec 均随项目和构建后的扩展保留，原文件未修改。
+2026-11-12：运行时改用 SVG，仅将根节点 width/height 设置为 32×32 显示尺寸。
+viewBox、路径、滤镜、颜色及其他图形内容均保持原样，不预先栅格化为 PNG。
+热点按上游构建方式缩放后向下取整。
+原始版权声明和 LGPL 原文保留于 Capitaine-COPYING.txt，GPL v3 原文另附。
+本声明不改变光标素材的原始许可。
+
+扩展 JavaScript、HTML、CSS、测试、构建脚本和文档为独立实现，采用 MIT 许可。
+Copyright (c) 2026 IsQuyet
+MIT 许可全文随项目和构建后的扩展保留。
+未复制 Custom CSS Cursor 的代码或素材，其 MPL-2.0 许可不适用于本项目独立实现。

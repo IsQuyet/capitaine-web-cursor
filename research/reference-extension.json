@@ -1,0 +1,14 @@
+{
+  "name": "Custom CSS Cursor",
+  "version": "1.1.0",
+  "guid": "custom-css-cursor@realsilasyang.dev",
+  "author": "Silas Yang",
+  "amoLicense": "MPL-2.0",
+  "metadata": "https://addons.mozilla.org/api/v5/addons/addon/%E8%87%AA%E5%AE%9A%E4%B9%89css%E5%85%89%E6%A0%87/",
+  "xpi": "https://addons.mozilla.org/firefox/downloads/file/4961407/css-1.1.0.xpi",
+  "sha256": "2d6c39bc01a032c6e626354d120630e7abb81d01e2cc31697514445ba9b949ed",
+  "reviewedOn": "2026-11-12",
+  "reviewMethod": "仅以 ZIP 数据静态读取 manifest 与源码，未执行或安装该扩展。",
+  "reusedCode": false,
+  "reusedArtwork": false
+}

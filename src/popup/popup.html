@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Capitaine · 网页指针</title>
+  <link rel="stylesheet" href="./popup.css">
+  <script type="module" src="./popup.js"></script>
+</head>
+<body>
+  <main class="popup-shell">
+    <header class="popup-header">
+      <h1>Capitaine</h1>
+      <span class="brand">网页指针</span>
+    </header>
+
+    <section class="panel" aria-label="指针偏好">
+      <label class="setting-row" for="enabled">
+        <span class="setting-title">全局启用</span>
+        <input class="switch" id="enabled" type="checkbox" role="switch" disabled>
+      </label>
+      <div class="setting-row">
+        <label class="setting-title" for="theme">显示模式</label>
+        <select id="theme" disabled>
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="panel site-panel" aria-label="当前网站">
+      <p class="hint">当前网站</p>
+      <p id="current-host" class="hostname">正在读取…</p>
+      <label class="setting-row site-toggle" for="site-enabled">
+        <span class="setting-title">在此网站启用</span>
+        <input class="switch" id="site-enabled" type="checkbox" role="switch" aria-describedby="site-hint" disabled>
+      </label>
+      <p class="hint" id="site-hint"></p>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <button id="open-options" class="secondary" type="button">打开完整设置</button>
+  </main>
+</body>
+</html>

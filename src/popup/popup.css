@@ -1,0 +1,16 @@
+@import '../ui/settings-ui.css';
+
+body { width: 344px; }
+.popup-shell { padding: 18px; }
+.popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.popup-header h1 { font-size: 21px; }
+.popup-header .brand { font-size: 11px; letter-spacing: .03em; }
+.panel { padding-inline: 14px; border-radius: 11px; }
+.setting-row { gap: 12px; padding-block: 13px; }
+.site-panel { margin-top: 12px; padding-block: 13px; }
+.hostname { margin-top: 3px; font-weight: 600; overflow-wrap: anywhere; }
+.site-toggle { padding-block: 12px 9px; }
+.status { margin: 10px 0; }
+.status:empty { display: none; }
+#open-options { width: 100%; margin-top: 12px; }
+.status:not(:empty) + #open-options { margin-top: 0; }

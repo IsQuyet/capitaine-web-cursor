@@ -1,0 +1,122 @@
+{
+  "grab": {
+    "source": "openhand.svg",
+    "spec": "openhand.spec",
+    "light": "assets/light/grab.svg",
+    "dark": "assets/dark/grab.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "grab",
+    "size": 32
+  },
+  "grabbing": {
+    "source": "dnd-move.svg",
+    "spec": "dnd-move.spec",
+    "light": "assets/light/grabbing.svg",
+    "dark": "assets/dark/grabbing.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "grabbing",
+    "size": 32
+  },
+  "zoom-in": {
+    "source": "zoom-in.svg",
+    "spec": "zoom-in.spec",
+    "light": "assets/light/zoom-in.svg",
+    "dark": "assets/dark/zoom-in.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "zoom-in",
+    "size": 32
+  },
+  "zoom-out": {
+    "source": "zoom-out.svg",
+    "spec": "zoom-out.spec",
+    "light": "assets/light/zoom-out.svg",
+    "dark": "assets/dark/zoom-out.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "zoom-out",
+    "size": 32
+  },
+  "cell": {
+    "source": "cell.svg",
+    "spec": "cell.spec",
+    "light": "assets/light/cell.svg",
+    "dark": "assets/dark/cell.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "cell",
+    "size": 32
+  },
+  "vertical-text": {
+    "source": "vertical-text.svg",
+    "spec": "vertical-text.spec",
+    "light": "assets/light/vertical-text.svg",
+    "dark": "assets/dark/vertical-text.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "vertical-text",
+    "size": 32
+  },
+  "alias": {
+    "source": "alias.svg",
+    "spec": "alias.spec",
+    "light": "assets/light/alias.svg",
+    "dark": "assets/dark/alias.svg",
+    "hotspot": [
+      5,
+      2
+    ],
+    "fallback": "alias",
+    "size": 32
+  },
+  "copy": {
+    "source": "copy.svg",
+    "spec": "copy.spec",
+    "light": "assets/light/copy.svg",
+    "dark": "assets/dark/copy.svg",
+    "hotspot": [
+      5,
+      2
+    ],
+    "fallback": "copy",
+    "size": 32
+  },
+  "col-resize": {
+    "source": "col-resize.svg",
+    "spec": "col-resize.spec",
+    "light": "assets/light/col-resize.svg",
+    "dark": "assets/dark/col-resize.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "col-resize",
+    "size": 32
+  },
+  "row-resize": {
+    "source": "row-resize.svg",
+    "spec": "row-resize.spec",
+    "light": "assets/light/row-resize.svg",
+    "dark": "assets/dark/row-resize.svg",
+    "hotspot": [
+      16,
+      16
+    ],
+    "fallback": "row-resize",
+    "size": 32
+  }
+}
