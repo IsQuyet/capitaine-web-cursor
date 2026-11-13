@@ -16,6 +16,9 @@ export const test = base.extend({
       headless: process.env.HEADED !== '1',
       viewport: { width: 1100, height: 850 },
       locale: browserUILanguage,
+      // Linux Chromium 按 LANGUAGE → LC_ALL → LC_MESSAGES → LANG 选择 UI 语言。
+      // 只覆盖最高优先级变量，不依赖 runner 安装对应的 POSIX locale。
+      env: process.platform === 'linux' ? { ...process.env, LANGUAGE: browserUILanguage } : undefined,
       args: [`--lang=${browserUILanguage}`, `--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
     });
     const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
