@@ -12,6 +12,20 @@ assert.deepEqual(manifest.host_permissions, ['http://*/*', 'https://*/*']);
 assert.equal(manifest.content_scripts[0].all_frames, true);
 assert.equal(manifest.content_scripts[0].match_origin_as_fallback, true);
 assert.deepEqual(manifest.web_accessible_resources[0].resources, ['assets/light/*.svg', 'assets/dark/*.svg']);
+const config = await readJSON(path.join(root, 'assets/sources.json'));
+const icons = Object.fromEntries(config.icon.sizes.map(size => [size, `assets/icons/icon-${size}.png`]));
+assert.deepEqual(manifest.icons, icons);
+assert.deepEqual(manifest.action.default_icon, icons);
+for (const file of Object.values(icons)) {
+  assert.ok((await readFile(path.join(dist, file))).equals(await readFile(path.join(root, file.replace('assets/', 'assets/generated/')))));
+}
+assert.equal(manifest.default_locale, 'en');
+for (const locale of ['en', 'zh_CN']) {
+  const file = `_locales/${locale}/messages.json`;
+  assert.ok((await readFile(path.join(dist, file))).equals(await readFile(path.join(root, 'src', file))));
+}
+const iconSource = `source/${config.icon.source}`;
+assert.ok((await readFile(path.join(dist, iconSource))).equals(await readFile(path.join(root, 'assets', iconSource))));
 for (const file of [
   manifest.background.service_worker,
   ...manifest.content_scripts.flatMap(script => script.js),
@@ -44,4 +58,4 @@ for (const name of ['Capitaine-COPYING.txt', 'GPL-3.0.txt', 'NOTICE.txt']) {
 assert.deepEqual(await readJSON(path.join(dist, 'source/provenance.json')), await readJSON(path.join(root, 'assets/sources.json')));
 await access(path.join(dist, 'assets/NOTICE.txt'));
 await access(path.join(dist, 'source/NOTICE.txt'));
-console.log('分发包验收通过：入口、最小权限、20份图像、20份源SVG、10份热点及许可完整。');
+console.log('分发包验收通过：入口、最小权限、指针与图标资源、中英消息、来源及许可完整。');

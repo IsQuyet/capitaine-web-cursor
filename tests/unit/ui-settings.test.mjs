@@ -17,7 +17,7 @@ for (const invalid of [
   'a b', '-bad.example', 'a..b', 'name@example.com', 'a?b', 'a#b', '%65xample.com',
 ]) {
   test(`设置界面拒绝无效主机名 ${invalid}`, () => {
-    assert.throws(() => parseExcludedHosts(`example.com\n${invalid}`), /第 2 行/u);
+    assert.throws(() => parseExcludedHosts(`example.com\n${invalid}`), /Line 2/u);
   });
 }
 

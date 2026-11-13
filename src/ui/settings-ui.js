@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { normalizeSettings, parseHost } from '../shared/settings.js';
 
 export async function readSettings() {
@@ -38,18 +39,18 @@ export function parseExcludedHosts(text) {
       // 只接受主机名，避免把带路径的地址误当作整站排除规则。
       const ipv6 = /^\[[\da-f:.]+\]$/iu.test(value);
       if (/[\s/?#@\\%*]/u.test(value) || (!ipv6 && value.includes(':'))) {
-        throw new Error('请只填写主机名，不含协议、端口、路径或通配符。');
+        throw new Error();
       }
 
       const host = parseHost(value);
       const domain = host.endsWith('.') ? host.slice(0, -1) : host;
       if (!ipv6 && (domain.length > 253 || !domain.split('.').every(label =>
         /^[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?$/iu.test(label)))) {
-        throw new Error('主机名格式无效。');
+        throw new Error();
       }
       hosts.push(host);
     } catch {
-      throw new Error(`第 ${index + 1} 行不是有效主机名。请填写 example.com 这样的主机名，不含协议、端口、路径或通配符。`);
+      throw new Error(t('invalidHostLine', index + 1));
     }
   }
 

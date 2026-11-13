@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import map from '../../assets/cursor-map.json';
 import { CURSOR_TYPES } from '../shared/cursor-types.js';
 import {
@@ -11,11 +12,11 @@ import { errorText, setStatus } from '../ui/settings-ui.js';
 
 const PALETTE_NAMES = { light: 'Light', dark: 'Dark' };
 const CURSOR_LABELS = {
-  grab: '可抓取', grabbing: '抓取中',
-  'zoom-in': '放大', 'zoom-out': '缩小',
-  cell: '单元格', 'vertical-text': '竖排文本',
-  alias: '快捷方式', copy: '复制',
-  'col-resize': '列宽调整', 'row-resize': '行高调整',
+  grab: t('cursor_grab'), grabbing: t('cursor_grabbing'),
+  'zoom-in': t('cursor_zoom_in'), 'zoom-out': t('cursor_zoom_out'),
+  cell: t('cursor_cell'), 'vertical-text': t('cursor_vertical_text'),
+  alias: t('cursor_alias'), copy: t('cursor_copy'),
+  'col-resize': t('cursor_col_resize'), 'row-resize': t('cursor_row_resize'),
 };
 const getURL = path => chrome.runtime.getURL(path);
 
@@ -64,7 +65,7 @@ export async function initCursorEditor() {
   for (const type of CURSOR_TYPES) {
     const option = document.createElement('option');
     option.value = type;
-    option.textContent = `${type}（${CURSOR_LABELS[type]}）`;
+    option.textContent = t('cursorTypeLabel', [type, CURSOR_LABELS[type]]);
     typeSelect.append(option);
   }
 
@@ -76,11 +77,11 @@ export async function initCursorEditor() {
     fields.disabled = busy || !ready;
     calibrator.disabled = busy || !ready || !imageReady;
     apply.disabled = busy || !ready || !draft || !dirty || invalidHotspot || !imageReady;
-    apply.textContent = busy ? '处理中…' : '应用';
+    apply.textContent = busy ? t('processing') : t('apply');
     draftState.hidden = !dirty;
     reload.disabled = busy || loading;
     reload.hidden = !readFailure && externalNote.hidden;
-    reload.textContent = readFailure ? '重试' : '载入更新';
+    reload.textContent = readFailure ? t('retry') : t('loadUpdate');
     trial.tabIndex = ready && !busy && imageReady ? 0 : -1;
     root.setAttribute('aria-busy', String(busy || loading));
     root.dataset.dirty = String(dirty);
@@ -117,7 +118,7 @@ export async function initCursorEditor() {
     crosshair.style.top = `${draft.hotspot[1] / draft.sourceSize[1] * 100}%`;
     const origin = element('hotspot-origin');
     origin.hidden = draft.format !== 'cur' || draft.hotspotOrigin !== 'embedded';
-    origin.textContent = origin.hidden ? '' : 'CUR 内置 Hotspot';
+    origin.textContent = origin.hidden ? '' : t('curEmbeddedHotspot');
     trial.style.cursor = cursorValueForAsset(draft, getURL, selectedType);
     trialMarker.hidden = true;
     trialResult.textContent = '';
@@ -146,13 +147,13 @@ export async function initCursorEditor() {
     element('source-size').textContent = `${draft.sourceSize[0]} × ${draft.sourceSize[1]} px`;
     element('display-size').textContent = `${draft.displaySize[0]} × ${draft.displaySize[1]} px`;
     const otherPalette = selectedPalette === 'light' ? 'dark' : 'light';
-    element('share-label').textContent = `本次同时应用到 ${PALETTE_NAMES[otherPalette]}`;
-    reset.textContent = `恢复 ${PALETTE_NAMES[selectedPalette]} 默认`;
+    element('share-label').textContent = t('sharePalette', PALETTE_NAMES[otherPalette]);
+    reset.textContent = t('resetPalette', PALETTE_NAMES[selectedPalette]);
     syncCoordinateInputs();
     const [width, height] = draft.displaySize;
     frame.style.width = `${256 * width / Math.max(width, height)}px`;
     frame.style.aspectRatio = `${width} / ${height}`;
-    image.alt = `放大校准：${draft.name}`;
+    image.alt = t('calibrationImageAlt', draft.name);
     image.hidden = false;
     // 内置和文件资源走同一图片与坐标路径，预览放大不写回资源尺寸。
     image.src = assetImageURL(draft, getURL);
@@ -188,7 +189,7 @@ export async function initCursorEditor() {
       }
     } catch (error) {
       if (version === readVersion) {
-        readFailure = `读取指针资源失败：${errorText(error)}`;
+        readFailure = t('cursorReadFailed', errorText(error));
         announce(readFailure, 'error');
       }
     } finally {
@@ -212,7 +213,7 @@ export async function initCursorEditor() {
   }
 
   function changeSelection() {
-    if (!allowDiscard('丢弃未应用更改并切换？')) {
+    if (!allowDiscard(t('discardOnSwitch'))) {
       typeSelect.value = selectedType;
       paletteSelect.value = selectedPalette;
       return;
@@ -239,7 +240,7 @@ export async function initCursorEditor() {
     imageReady = false;
     crosshair.hidden = true;
     updateControls();
-    announce('无法显示当前指针图片，请重新选择 SVG / PNG / CUR 文件。', 'error');
+    announce(t('cursorImageFailed'), 'error');
   });
 
   importButton.addEventListener('click', () => {
@@ -254,7 +255,7 @@ export async function initCursorEditor() {
       setDraft(asset, true);
       announce('');
     } catch (error) {
-      announce(`导入失败：${errorText(error)}`, 'error');
+      announce(t('importFailed', errorText(error)), 'error');
     } finally {
       fileInput.value = '';
       await finishBusy();
@@ -283,7 +284,7 @@ export async function initCursorEditor() {
     });
     invalidHotspot = invalidIndex !== -1;
     if (invalidHotspot) {
-      element('hotspot-bounds').textContent = `${invalidIndex === 0 ? 'X' : 'Y'} 需大于等于 0 且小于 ${draft.sourceSize[invalidIndex]}。`;
+      element('hotspot-bounds').textContent = t('hotspotBounds', [invalidIndex === 0 ? 'X' : 'Y', draft.sourceSize[invalidIndex]]);
       markDirty();
       return;
     }
@@ -348,7 +349,7 @@ export async function initCursorEditor() {
     trialMarker.style.left = `${x}px`;
     trialMarker.style.top = `${y}px`;
     trialMarker.hidden = false;
-    trialResult.textContent = `落点：${Math.round(x)}, ${Math.round(y)}`;
+    trialResult.textContent = t('trialResult', [Math.round(x), Math.round(y)]);
   });
 
   apply.addEventListener('click', async () => {
@@ -359,9 +360,9 @@ export async function initCursorEditor() {
       savedState = await saveCursorAsset(selectedType, palettes, structuredClone(draft));
       readFailure = '';
       loadSelection();
-      announce(`已保存：${selectedType} · ${palettes.map(palette => PALETTE_NAMES[palette]).join(' / ')}`, 'success');
+      announce(t('cursorSaved', [selectedType, palettes.map(palette => PALETTE_NAMES[palette]).join(' / ')]), 'success');
     } catch (error) {
-      announce(`保存失败：${errorText(error)}`, 'error');
+      announce(t('saveFailed', errorText(error)), 'error');
     } finally {
       await finishBusy();
     }
@@ -369,22 +370,22 @@ export async function initCursorEditor() {
 
   reset.addEventListener('click', async () => {
     if (busy || !ready) return;
-    if (!allowDiscard(`将 ${selectedType} · ${PALETTE_NAMES[selectedPalette]} 恢复默认并丢弃未应用更改？`)) return;
+    if (!allowDiscard(t('discardOnReset', [selectedType, PALETTE_NAMES[selectedPalette]]))) return;
     setBusy(true);
     try {
       savedState = await resetCursorAsset(selectedType, [selectedPalette]);
       readFailure = '';
       loadSelection();
-      announce(`已恢复默认：${selectedType} · ${PALETTE_NAMES[selectedPalette]}`, 'success');
+      announce(t('cursorReset', [selectedType, PALETTE_NAMES[selectedPalette]]), 'success');
     } catch (error) {
-      announce(`恢复失败：${errorText(error)}`, 'error');
+      announce(t('resetFailed', errorText(error)), 'error');
     } finally {
       await finishBusy();
     }
   });
 
   reload.addEventListener('click', async () => {
-    if (busy || !allowDiscard('丢弃未应用更改并重新载入？')) return;
+    if (busy || !allowDiscard(t('discardOnReload'))) return;
     // 读取失败时仍保留草稿，只有成功取得新状态后才替换它。
     const previousDirty = dirty;
     setBusy(true);
@@ -396,7 +397,7 @@ export async function initCursorEditor() {
       announce('');
     } catch (error) {
       dirty = previousDirty;
-      readFailure = `读取指针资源失败：${errorText(error)}`;
+      readFailure = t('cursorReadFailed', errorText(error));
       announce(readFailure, 'error');
     } finally {
       await finishBusy();

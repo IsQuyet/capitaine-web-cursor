@@ -17,6 +17,7 @@ for (const name of Object.values(config.cursors)) {
   }
   files.push([`src/config/static/${name}.spec`, `assets/source/config/${name}.spec`]);
 }
+files.push([`src/svg/${config.icon.source}`, `assets/source/${config.icon.source}`]);
 files.push(['COPYING', 'licenses/Capitaine-COPYING.txt']);
 const hashes = {};
 for (const [source, destination] of files) {

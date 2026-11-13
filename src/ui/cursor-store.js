@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { normalizeCursorOverrides } from '../shared/cursor-assets.js';
 import map from '../../assets/cursor-map.json';
 
@@ -8,7 +9,7 @@ export async function readCursorOverrides() {
 
 async function mutate(message) {
   const response = await chrome.runtime.sendMessage(message);
-  if (!response?.ok) throw new Error(response?.error || '指针资源保存失败，请重试。');
+  if (!response?.ok) throw new Error(response?.error || t('cursorSaveRetry'));
   return normalizeCursorOverrides(response.state, map);
 }
 

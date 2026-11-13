@@ -2,12 +2,25 @@
   "manifest_version": 3,
   "name": "Capitaine Web Cursor",
   "version": "0.1.2",
-  "description": "用独立的 Capitaine 双主题素材替换网页中的十种 CSS 特殊指针，保留网站自定义指针。",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "en",
   "minimum_chrome_version": "120",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
   "permissions": ["storage", "scripting"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "action": {
-    "default_title": "Capitaine 网页指针",
+    "default_title": "__MSG_actionTitle__",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    },
     "default_popup": "popup/popup.html"
   },
   "options_ui": {

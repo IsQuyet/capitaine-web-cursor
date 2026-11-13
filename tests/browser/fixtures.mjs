@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
 export const test = base.extend({
-  extension: [async ({}, use) => {
+  browserUILanguage: ['en-US', { option: true, scope: 'worker' }],
+  extension: [async ({ browserUILanguage }, use) => {
     await mkdir(path.join(root, '.cache'), { recursive: true });
     const profile = await mkdtemp(path.join(root, '.cache/browser-profile-'));
     const extensionPath = path.join(root, 'dist');
@@ -14,7 +15,8 @@ export const test = base.extend({
       channel: 'chromium',
       headless: process.env.HEADED !== '1',
       viewport: { width: 1100, height: 850 },
-      args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+      locale: browserUILanguage,
+      args: [`--lang=${browserUILanguage}`, `--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
     });
     const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
     const id = new URL(worker.url()).host;
@@ -48,6 +50,11 @@ export const test = base.extend({
 });
 
 export { expect };
+
+export async function message(page, key, substitutions = []) {
+  const values = (Array.isArray(substitutions) ? substitutions : [substitutions]).map(String);
+  return page.evaluate(({ key, values }) => chrome.i18n.getMessage(key, values), { key, values });
+}
 
 export async function cursor(locator) {
   return locator.evaluate(element => getComputedStyle(element).cursor);

@@ -29,4 +29,12 @@ for (const theme of ['light', 'dark']) {
     hashes.add(hash);
   }
 }
-console.log('素材验收通过：20 个独立 SVG，显示尺寸、原始图形、主题、热点和 SHA-256 全部匹配。');
+assert.deepEqual(config.icon.sizes, [16, 32, 48, 128]);
+assert.deepEqual((await readdir(path.join(root, 'assets/generated/icons'))).sort(), config.icon.sizes.map(size => `icon-${size}.png`).sort());
+for (const size of config.icon.sizes) {
+  const png = await readFile(path.join(root, `assets/generated/icons/icon-${size}.png`));
+  assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+  assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [size, size]);
+  assert.equal(png[25], 6, '扩展图标应保留透明通道');
+}
+console.log('素材验收通过：20 个独立 SVG、4 份透明 PNG 图标，源文件、主题、热点和 SHA-256 全部匹配。');

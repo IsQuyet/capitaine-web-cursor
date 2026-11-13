@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { CursorController } from './cursor-controller.js';
 import { isEnabledForHost, normalizeSettings } from '../shared/settings.js';
 
@@ -30,7 +31,7 @@ function configure() {
         allowFileAssets: !dataImagesBlocked,
       });
       if (response?.sheets) appliedSheets = response.sheets;
-      if (!response?.ok) throw new Error(response?.error || '指针样式注入失败。');
+      if (!response?.ok) throw new Error(response?.error || t('cursorInjectionFailed'));
     }
     if (nextTheme !== null) controller.start();
   }).catch(error => {

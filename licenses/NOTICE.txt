@@ -11,6 +11,7 @@ Capitaine cursors are based on the KDE Breeze icon theme.
 2026-11-12：运行时改用 SVG，仅将根节点 width/height 设置为 32×32 显示尺寸。
 viewBox、路径、滤镜、颜色及其他图形内容均保持原样，不预先栅格化为 PNG。
 热点按上游构建方式缩放后向下取整。
+2026-11-13：扩展图标取自 Light progress-00.svg 静态帧，原样保留 SVG，另导出 16、32、48、128 px PNG。
 原始版权声明和 LGPL 原文保留于 Capitaine-COPYING.txt，GPL v3 原文另附。
 本声明不改变光标素材的原始许可。
 

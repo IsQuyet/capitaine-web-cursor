@@ -7,6 +7,8 @@ await buildAssets();
 const dist = path.join(root, 'dist');
 await mkdir(dist, { recursive: true });
 await cp(path.join(root, 'src/manifest.json'), path.join(dist, 'manifest.json'));
+await rm(path.join(dist, '_locales'), { recursive: true, force: true });
+await cp(path.join(root, 'src/_locales'), path.join(dist, '_locales'), { recursive: true });
 // 重建运行资源目录，防止更换格式后残留旧指针。
 await rm(path.join(dist, 'assets'), { recursive: true, force: true });
 await cp(path.join(root, 'assets/generated'), path.join(dist, 'assets'), { recursive: true });

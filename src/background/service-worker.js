@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { createCursorCSS } from '../shared/cursor-css.js';
 import { normalizeCursorOverrides, withoutFileAssets } from '../shared/cursor-assets.js';
 import { resetCursorInState, saveCursorToState } from '../shared/cursor-overrides.js';
@@ -9,7 +10,7 @@ let mutations = Promise.resolve();
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (['save-cursor-asset', 'reset-cursor-asset'].includes(message?.type)) {
     if (sender.url !== chrome.runtime.getURL('options/options.html')) {
-      reply({ ok: false, error: '请在完整设置页编辑指针。' });
+      reply({ ok: false, error: t('editInOptions') });
       return false;
     }
     mutations = mutations.catch(() => {}).then(async () => {
@@ -24,7 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   }
   if (message?.type !== 'cursor-rules') return false;
   if (!sender.tab || !sender.documentId) {
-    reply({ ok: false, error: '指针样式只能由网页内容脚本请求。' });
+    reply({ ok: false, error: t('contentScriptOnly') });
     return false;
   }
   const target = { tabId: sender.tab.id, documentIds: [sender.documentId] };

@@ -1,4 +1,4 @@
-import { test, expect, cursor, expectCursor, setExcludedHosts } from './fixtures.mjs';
+import { test, expect, cursor, expectCursor, setExcludedHosts, message } from './fixtures.mjs';
 
 async function openUI(extension, source, name, keepSiteActive = false) {
   const ui = await extension.context.newPage();
@@ -19,7 +19,7 @@ test('完整设置通过真实 storage 保存并持久化，公共样式可用',
     await ui.locator('#theme').selectOption('dark');
     await setExcludedHosts(ui, 'LOCALHOST\nexample.com\nlocalhost');
     await ui.locator('#save').click();
-    await expect(ui.locator('#status')).toContainText('已保存');
+    await expect(ui.locator('#status')).toHaveText(await message(ui, 'saved'));
     expect(await storedSettings(extension)).toEqual({ enabled: false, theme: 'dark', excludedHosts: ['example.com', 'localhost'] });
     expect(await ui.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe('dark');
     await ui.reload();
@@ -39,7 +39,7 @@ test('错误排除项标出行号，不能保存部分有效输入', async ({ pa
     await expect(ui.locator('#save')).toBeEnabled();
     await setExcludedHosts(ui, 'example.com\n*.example.org');
     await ui.locator('#save').click();
-    await expect(ui.locator('#status')).toContainText('第 2 行');
+    await expect(ui.locator('#status')).toHaveText(await message(ui, 'invalidHostLine', 2));
     await expect(ui.locator('#excluded-hosts')).toHaveAttribute('aria-invalid', 'true');
     expect(await storedSettings(extension)).toEqual({ enabled: true, theme: 'auto', excludedHosts: [] });
   } finally {

@@ -1,4 +1,4 @@
-import { test, expect, cursor, expectCursor, setExcludedHosts } from './fixtures.mjs';
+import { test, expect, cursor, expectCursor, setExcludedHosts, message } from './fixtures.mjs';
 import { curFile, fileAsset, multiCurFile, pngFile, setAsset, svgFile } from './cursor-files.mjs';
 
 test.beforeEach(async ({ page }) => { await page.bringToFront(); });
@@ -29,8 +29,11 @@ async function setHotspot(ui, x, y) {
 }
 
 async function apply(ui) {
+  const type = await ui.locator('#cursor-type').inputValue();
+  const palettes = await ui.locator('#cursor-share-palette').isChecked()
+    ? 'Light / Dark' : (await ui.locator('#cursor-palette').inputValue() === 'light' ? 'Light' : 'Dark');
   await ui.locator('#cursor-apply').click();
-  await expect(ui.locator('#cursor-editor-status')).toContainText('已保存');
+  await expect(ui.locator('#cursor-editor-status')).toHaveText(await message(ui, 'cursorSaved', [type, palettes]));
   await expect(ui.locator('#cursor-calibrator')).toBeEnabled();
 }
 
@@ -51,7 +54,7 @@ test('面板只保留操作信息，原生文件选择后明确显示草稿与�
     await (await chosen).setFiles({ name: 'picker.svg', mimeType: 'image/svg+xml', buffer: svgFile() });
     await expect(ui.locator('#cursor-resource-name')).toHaveText('picker.svg');
     await expect(ui.locator('#cursor-draft-state')).toBeVisible();
-    await expect(ui.locator('#cursor-share-label')).toContainText('本次同时应用到 Dark');
+    await expect(ui.locator('#cursor-share-label')).toHaveText(await message(ui, 'sharePalette', 'Dark'));
     await expect(ui.locator('#cursor-editor-status')).toBeEmpty();
     await apply(ui);
     await expect(ui.locator('#cursor-draft-state')).toBeHidden();
@@ -156,14 +159,14 @@ test('内置 SVG 同一校准流程，数字校验和全局设置保存不丢资
     expect(asset.hotspot).toEqual([5, 5]);
     await setExcludedHosts(ui, 'example.com');
     await ui.locator('#save').click();
-    await expect(ui.locator('#status')).toContainText('已保存');
+    await expect(ui.locator('#status')).toHaveText(await message(ui, 'saved'));
     expect(await state(extension)).toEqual(before);
     await page.locator('#grab').hover();
     await expectCursor(page.locator('#grab'), 'grab');
     expect(await cursor(page.locator('#grab'))).toContain('5 5, grab');
     await ui.locator('#cursor-trial').click({ position: { x: 30, y: 40 } });
     await expect(ui.locator('#cursor-trial-marker')).toBeVisible();
-    await expect(ui.locator('#cursor-trial-result')).toContainText('落点');
+    await expect(ui.locator('#cursor-trial-result')).toHaveText(await message(ui, 'trialResult', [30, 40]));
     expect(await state(extension)).toEqual(before);
     await expect(ui.locator('#cursor-apply')).toBeDisabled();
     await ui.screenshot({ path: '.cache/cursor-editor-preview.png', fullPage: true });
@@ -254,18 +257,18 @@ test('错误或非静态文件不会执行、保存或覆盖有效草稿', async
   try {
     await setHotspot(ui, 4, 5);
     const invalid = [
-      ['脚本.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" onload="window.cursorScriptRan=true"/>'), '代码'],
-      ['外部.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><image href="https://example.invalid/picture.png"/></svg>'), '外部'],
-      ['动画.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><animate attributeName="x"/></svg>'), '静态'],
-      ['动画.ani', Buffer.from('RIFF'), 'ANI'],
-      ['损坏.cur', Buffer.from('not a cur'), 'CUR'],
-      ['损坏.png', Buffer.from('not a png'), 'PNG'],
-      ['太大.png', await pngFile(page, 256, 256), '128'],
-      ['超限.svg', Buffer.alloc(256 * 1024 + 1, 32), '256'],
+      ['脚本.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" onload="window.cursorScriptRan=true"/>'), 'svgEvents'],
+      ['外部.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><image href="https://example.invalid/picture.png"/></svg>'), 'svgExternalFile'],
+      ['动画.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><animate attributeName="x"/></svg>'), 'svgStatic'],
+      ['动画.ani', Buffer.from('RIFF'), 'cursorFileFormat'],
+      ['损坏.cur', Buffer.from('not a cur'), 'curStaticOnly'],
+      ['损坏.png', Buffer.from('not a png'), 'invalidPNG'],
+      ['太大.png', await pngFile(page, 256, 256), 'pngSizeLimit'],
+      ['超限.svg', Buffer.alloc(256 * 1024 + 1, 32), 'cursorFileSize'],
     ];
     for (const [name, buffer, error] of invalid) {
       await ui.locator('#cursor-file').setInputFiles({ name, buffer, mimeType: 'application/octet-stream' });
-      await expect(ui.locator('#cursor-editor-status')).toContainText(error);
+      await expect(ui.locator('#cursor-editor-status')).toHaveText(await message(ui, 'importFailed', await message(ui, error)));
       await expect(ui.locator('#cursor-hotspot-x')).toHaveValue('4');
       await expect(ui.locator('#cursor-resource-name')).toContainText('Capitaine');
     }

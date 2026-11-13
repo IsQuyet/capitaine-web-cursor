@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 export const DEFAULT_SETTINGS = Object.freeze({
   enabled: true,
   theme: 'auto',
@@ -9,11 +10,11 @@ export const THEMES = Object.freeze(['auto', 'light', 'dark']);
 export function parseHost(value) {
   const input = value.trim();
   if (!input || /[\s*]/u.test(input)) {
-    throw new Error('请输入有效的主机名或 HTTP(S) 地址，不支持通配符。');
+    throw new Error(t('invalidHost'));
   }
   const url = new URL(input.includes('://') ? input : `https://${input}`);
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
-    throw new Error('只接受不包含用户名和密码的 HTTP(S) 地址。');
+    throw new Error(t('invalidHostURL'));
   }
   return url.hostname.toLowerCase();
 }

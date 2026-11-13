@@ -1,9 +1,10 @@
+import { t } from './i18n.js';
 import { CURSOR_TYPES } from './cursor-types.js';
 import { normalizeCursorOverrides, PALETTES, validateCursorAsset } from './cursor-assets.js';
 
 function validateBinding(type, palettes) {
   if (!CURSOR_TYPES.includes(type) || !Array.isArray(palettes) || !palettes.length
-      || palettes.some(palette => !PALETTES.includes(palette))) throw new Error('请选择有效的指针类型与主题。');
+      || palettes.some(palette => !PALETTES.includes(palette))) throw new Error(t('invalidCursorBinding'));
 }
 
 function prune(state) {

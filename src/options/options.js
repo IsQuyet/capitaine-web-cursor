@@ -1,3 +1,4 @@
+import { localizePage, t } from '../shared/i18n.js';
 import {
   applyTheme,
   errorText,
@@ -7,6 +8,8 @@ import {
   updateSettings,
 } from '../ui/settings-ui.js';
 import { initCursorEditor } from './cursor-editor.js';
+
+localizePage();
 
 const form = document.querySelector('#settings-form');
 const fields = document.querySelector('#settings-fields');
@@ -21,6 +24,7 @@ let baseline = null;
 let ready = false;
 let saving = false;
 let readVersion = 0;
+let readFailure = '';
 
 function announce(message, tone = 'info') {
   if (status.textContent !== message || status.dataset.tone !== tone) setStatus(status, message, tone);
@@ -30,7 +34,7 @@ function setBusy(busy) {
   saving = busy;
   fields.disabled = busy || !ready;
   save.disabled = busy || !ready;
-  save.textContent = busy ? '保存中…' : saveLabel;
+  save.textContent = busy ? t('saving') : saveLabel;
   form.setAttribute('aria-busy', String(busy || !ready));
 }
 
@@ -50,7 +54,7 @@ function changedFields() {
 
 function updateTheme() {
   applyTheme(theme.value);
-  themeHelp.textContent = theme.value === 'auto' ? '跟随浏览器配色偏好' : '';
+  themeHelp.textContent = theme.value === 'auto' ? t('autoThemeHelp') : '';
 }
 
 function showSettings(next, preserveDraft = true) {
@@ -64,8 +68,10 @@ function showSettings(next, preserveDraft = true) {
   }
   ready = true;
   updateTheme();
+  // 后台刷新只同步字段，保存失败提示保留到用户再次编辑或保存。
+  if (preserveDraft && status.dataset.tone === 'error') return;
   if (changedFields().size) {
-    if (excludedHosts.getAttribute('aria-invalid') !== 'true') announce('未保存');
+    if (excludedHosts.getAttribute('aria-invalid') !== 'true') announce(t('unsaved'));
   } else if (status.dataset.tone !== 'success') {
     announce('');
   }
@@ -76,10 +82,15 @@ async function refreshSettings() {
   try {
     const next = await readSettings();
     if (version !== readVersion || saving) return;
+    if (readFailure && status.textContent === readFailure) announce('');
+    readFailure = '';
     // 只同步未编辑的字段，其他入口保存后保留当前草稿。
     showSettings(next);
   } catch (error) {
-    if (version === readVersion && !saving) announce(`读取失败：${errorText(error)}。请刷新重试。`, 'error');
+    if (version === readVersion && !saving) {
+      readFailure = t('settingsReadFailed', errorText(error));
+      announce(readFailure, 'error');
+    }
   } finally {
     if (version === readVersion) setBusy(saving);
   }
@@ -89,7 +100,7 @@ function markDirty(event) {
   if (!ready || saving) return;
   if (event.target === excludedHosts) excludedHosts.removeAttribute('aria-invalid');
   updateTheme();
-  if (excludedHosts.getAttribute('aria-invalid') !== 'true') announce(changedFields().size ? '未保存' : '');
+  if (excludedHosts.getAttribute('aria-invalid') !== 'true') announce(changedFields().size ? t('unsaved') : '');
 }
 
 form.addEventListener('input', markDirty);
@@ -121,9 +132,9 @@ form.addEventListener('submit', async event => {
     // 合并当前表单真正修改的字段，不用旧快照覆盖弹窗等入口的新配置。
     const saved = await updateSettings(current => ({ ...current, ...patch }));
     showSettings(saved, false);
-    announce('已保存', 'success');
+    announce(t('saved'), 'success');
   } catch (error) {
-    announce(`保存失败：${errorText(error)}`, 'error');
+    announce(t('saveFailed', errorText(error)), 'error');
   } finally {
     setBusy(false);
     await refreshSettings();

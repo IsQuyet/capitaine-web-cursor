@@ -1,18 +1,19 @@
+import { t } from './i18n.js';
 export function pngDimensions(bytes) {
   if (bytes.length < 33 || bytes.subarray(0, 8).some((value, index) => value !== [137, 80, 78, 71, 13, 10, 26, 10][index])
       || String.fromCharCode(...bytes.subarray(12, 16)) !== 'IHDR') {
-    throw new Error('文件不是有效的 PNG。');
+    throw new Error(t('invalidPNG'));
   }
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const size = [view.getUint32(16), view.getUint32(20)];
-  if (size.some(value => value < 1 || value > 128)) throw new Error('PNG 指针尺寸须在 1 到 128 像素之间，请导出合适尺寸的文件。');
+  if (size.some(value => value < 1 || value > 128)) throw new Error(t('pngSizeLimit'));
   return size;
 }
 
 export function curRuntimeBytes(bytes) {
   const images = curImages(bytes);
   const indices = images.flatMap((image, index) => image.size.every(size => size <= 128) ? [index] : []);
-  if (!indices.length) throw new Error('CUR 没有 128×128 以内的可用图像，请导出合适尺寸的版本。');
+  if (!indices.length) throw new Error(t('curNoUsableImage'));
   if (indices.length === images.length) return bytes;
   const input = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const length = 6 + indices.length * 16 + indices.reduce((sum, index) => sum + input.getUint32(6 + index * 16 + 8, true), 0);
@@ -35,11 +36,11 @@ export function curRuntimeBytes(bytes) {
 }
 
 export function curImages(bytes) {
-  if (bytes.length < 6) throw new Error('CUR 文件不完整。');
+  if (bytes.length < 6) throw new Error(t('curIncomplete'));
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  if (view.getUint16(0, true) !== 0 || view.getUint16(2, true) !== 2) throw new Error('文件不是静态 CUR，暂不支持 ICO 或 ANI。');
+  if (view.getUint16(0, true) !== 0 || view.getUint16(2, true) !== 2) throw new Error(t('curStaticOnly'));
   const count = view.getUint16(4, true);
-  if (!count || count > 32 || bytes.length < 6 + count * 16) throw new Error('CUR 图像目录无效。');
+  if (!count || count > 32 || bytes.length < 6 + count * 16) throw new Error(t('curDirectory'));
   const images = [];
   for (let index = 0; index < count; index++) {
     const offset = 6 + index * 16;
@@ -50,7 +51,7 @@ export function curImages(bytes) {
     const length = view.getUint32(offset + 8, true);
     const start = view.getUint32(offset + 12, true);
     if (!length || start < 6 + count * 16 || start + length > bytes.length || x >= width || y >= height) {
-      throw new Error('CUR 图像数据或内置热点无效。');
+      throw new Error(t('curImageData'));
     }
     images.push({ size: [width, height], hotspot: [x, y] });
   }
