@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: 完整检查
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: 安装 Chromium 和系统依赖
+        run: npm run setup:browser -- --with-deps
+      - name: 运行完整检查
+        # 两层 npm 参数转发，仅给最后的浏览器测试增加报告。
+        run: npm test -- -- --reporter=list,html
+        env:
+          PLAYWRIGHT_HTML_OPEN: never
+      - name: 保留失败报告和 trace
+        if: failure()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: browser-failure
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14

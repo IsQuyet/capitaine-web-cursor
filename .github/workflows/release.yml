@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-package:
+    name: 核对版本、完整检查并打包
+    if: github.repository == 'IsQuyet/capitaine-web-cursor'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - name: 严格核对 tag 和版本
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          const tag = process.env.GITHUB_REF_NAME;
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          const manifest = JSON.parse(readFileSync('src/manifest.json', 'utf8'));
+          assert.match(tag, /^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/, 'tag 必须为 vX.Y.Z');
+          assert.equal(tag, `v${pkg.version}`, 'tag 与 package.json 版本不一致');
+          assert.equal(pkg.version, manifest.version, 'package.json 与 src/manifest.json 版本不一致');
+          console.log(`版本核对通过：${tag}`);
+          NODE
+      - run: npm ci
+      - name: 安装 Chromium 和系统依赖
+        run: npm run setup:browser -- --with-deps
+      - name: 运行完整检查
+        # 两层 npm 参数转发，仅给最后的浏览器测试增加报告。
+        run: npm test -- -- --reporter=list,html
+        env:
+          PLAYWRIGHT_HTML_OPEN: never
+      - name: 打包 dist 全部内容并生成 SHA-256
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          archive="capitaine-web-cursor-${GITHUB_REF_NAME}.zip"
+          # 从 dist 内打包，manifest 位于根目录，源素材和许可一并保留。
+          (cd dist && zip -qr "../artifacts/$archive" .)
+          (cd artifacts && sha256sum "$archive" > "$archive.sha256")
+      - name: 保存待发布附件
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-package
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 7
+      - name: 保留失败报告和 trace
+        if: failure()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-browser-failure
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  publish:
+    name: 发布 GitHub Release
+    needs: check-and-package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      # 写权限 job 不检出源码，也不执行项目或依赖脚本。
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: release-package
+          path: artifacts
+      - name: 核验附件并创建 Release
+        working-directory: artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          archive="capitaine-web-cursor-${RELEASE_TAG}.zip"
+          sha256sum --check "$archive.sha256"
+          gh release create "$RELEASE_TAG" "$archive" "$archive.sha256" \
+            --verify-tag --title "$RELEASE_TAG" --generate-notes
